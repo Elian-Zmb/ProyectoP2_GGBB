@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprobante #{{ transaction.id }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #fff; 
+            color: #1e293b; 
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            border: 1px solid #e2e8f0;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05); 
+            position: relative;
+            overflow: hidden;
+        }
+        .header-table {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .company-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .company-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+        .receipt-info {
+            text-align: right;
+        }
+        .receipt-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3b82f6; 
+        }
+        .receipt-date {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .section-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #94a3b8;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            margin-top: 30px;
+        }
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .content-table td {
+            padding: 8px 0;
+            vertical-align: top;
+        }
+        .label {
+            width: 35%;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .value {
+            width: 65%;
+            color: #0f172a;
+            font-weight: 500;
+        }
+        .summary-box {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        .total-row td {
+            border-top: 2px solid #e2e8f0;
+            padding-top: 15px;
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .amount-highlight {
+            color: #3b82f6;
+        }
+        .footer-section {
+            margin-top: 60px;
+            display: table;
+            width: 100%;
+        }
+        .signature-block {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: center;
+            padding: 0 20px;
+        }
+        .signature-line {
+            border-top: 1px solid #cbd5e1;
+            margin-bottom: 5px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .legal-text {
+            margin-top: 40px;
+            font-size: 9px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px dashed #e2e8f0;
+            padding-top: 20px;
+        }
+        .stamp-watermark {
+            position: absolute;
+            top: 40%;
+            right: 50px;
+            opacity: 0.1;
+            z-index: 0;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="invoice-box">
+        
+        <img src="https://cdn-icons-png.flaticon.com/512/9502/9502360.png" class="stamp-watermark" width="300" alt="Pagado">
+
+        <table class="header-table">
+            <tr>
+                <td style="vertical-align: top;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4144/4144379.png" width="40" alt="Logo">
+                        <div>
+                            <h1 class="company-title">Sociedad Financiera</h1>
+                            <div class="company-subtitle">Comprobante Oficial de Pago</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="receipt-info" style="vertical-align: top;">
+                    <div class="receipt-number">N° REC-{{ transaction.id }}</div>
+                    <div class="receipt-date">{{ transaction.timestamp }}</div>
+                    <div style="font-size: 10px; color: #64748b; margin-top: 5px;">ID Transacción: {{ transaction.uuid }}</div>
+                </td>
+            </tr>
+        </table>
+
+        <table width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="48%" valign="top">
+                    <div class="section-title">Información del Cliente</div>
+                    <table class="content-table">
+                        <tr>
+                            <td class="label">Titular:</td>
+                            <td class="value">{{ client.full_name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Identificación:</td>
+                            <td class="value">{{ client.dni }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Email:</td>
+                            <td class="value text-lowercase">{{ client.email }}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td width="4%"></td> <td width="48%" valign="top">
+                    <div class="section-title">Referencia del Préstamo</div>
+                    <table class="content-table">
+                        <tr>
+                            <td class="label">Crédito N°:</td>
+                            <td class="value">#{{ loan.id }}</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Tasa Interés:</td>
+                            <td class="value">{{ loan.interest_rate }}% T.E.A</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Estado Crédito:</td>
+                            <td class="value" style="text-transform: uppercase;">{{ loan.status }}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <div class="section-title">Detalles de la Amortización</div>
+        <table class="content-table" style="border-bottom: 2px solid #e2e8f0; margin-bottom: 20px;">
+            <tr style="background-color: #f1f5f9; font-size: 11px; text-transform: uppercase;">
+                <th style="padding: 10px; text-align: left; color: #64748b;">Concepto</th>
+                <th style="padding: 10px; text-align: left; color: #64748b;">Fecha Vencimiento</th>
+                <th style="padding: 10px; text-align: right; color: #64748b;">Importe</th>
+            </tr>
+            <tr>
+                <td style="padding: 15px 10px; border-bottom: 1px solid #f1f5f9;">
+                    <strong>Cuota Ordinaria #{{ schedule_item.installment_number }}</strong>
+                </td>
+                <td style="padding: 15px 10px; border-bottom: 1px solid #f1f5f9;">
+                    {{ schedule_item.due_date }}
+                </td>
+                <td style="padding: 15px 10px; text-align: right; border-bottom: 1px solid #f1f5f9;">
+                    ${{ schedule_item.amount_capital + schedule_item.amount_interest }}
+                </td>
+            </tr>
+            {% if mora_amount > 0 %}
+            <tr>
+                <td style="padding: 10px; color: #dc2626;">Recargo por Mora / Atraso</td>
+                <td style="padding: 10px;">-</td>
+                <td style="padding: 10px; text-align: right; color: #dc2626;">${{ mora_amount }}</td>
+            </tr>
+            {% endif %}
+        </table>
+
+        <div class="summary-box">
+            <table width="100%">
+                <tr>
+                    <td valign="middle" style="color: #64748b; font-size: 11px;">
+                        <em>Gracias por cumplir con su obligación financiera a tiempo.</em>
+                    </td>
+                    <td valign="middle" align="right">
+                        <table style="width: 250px;">
+                            <tr>
+                                <td style="padding-bottom: 5px; color: #64748b;">Subtotal</td>
+                                <td align="right" style="padding-bottom: 5px;">${{ schedule_item.amount_capital + schedule_item.amount_interest }}</td>
+                            </tr>
+                            {% if mora_amount > 0 %}
+                            <tr>
+                                <td style="padding-bottom: 10px; color: #64748b;">Mora</td>
+                                <td align="right" style="padding-bottom: 10px; color: #dc2626;">${{ mora_amount }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr class="total-row">
+                                <td>TOTAL PAGADO</td>
+                                <td align="right" class="amount-highlight">${{ schedule_item.total_amount }}</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer-section">
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div style="font-weight: 600;">{{ client.full_name }}</div>
+                <div style="font-size: 10px; color: #64748b;">Firma Conforme Cliente</div>
+            </div>
+            <div class="signature-block">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Signature_sample.svg/1200px-Signature_sample.svg.png" width="100" style="margin-bottom: -15px; opacity: 0.6;">
+                <div class="signature-line"></div>
+                <div style="font-weight: 600;">Sociedad Financiera</div>
+                <div style="font-size: 10px; color: #64748b;">Caja / Tesorería</div>
+            </div>
+        </div>
+
+        <div class="legal-text">
+            Este documento es un comprobante de pago válido emitido por el sistema de Sociedad App.
+            <br>
+            Fecha de Impresión: <script>document.write(new Date().toLocaleDateString())</script>
+        </div>
+
+    </div>
+
+</body>
+</html>

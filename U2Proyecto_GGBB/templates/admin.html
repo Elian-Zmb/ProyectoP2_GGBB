@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} | Sociedad Financiera</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0f172a; 
+            --accent-color: #3b82f6; 
+            --glass-bg: rgba(15, 23, 42, 0.85); 
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+
+        .page-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .brand-title {
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+        }
+
+        .dashboard-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: #cbd5e1;
+            border-color: rgba(255,255,255,0.1);
+        }
+        
+        .table thead th {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-light:hover {
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.8em;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <img src="https://cdn-icons-png.flaticon.com/512/1602/1602309.png" alt="Logo" width="40" style="filter: invert(1);">
+            <h1 class="h3 mb-0 brand-title">{{ page_title }}</h1>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <a href="/dashboard" class="btn btn-outline-light btn-sm d-flex align-items-center gap-2">
+                <i class="bi bi-person-circle"></i> Mi Perfil
+            </a>
+            <a href="/logout" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2 text-light">
+                <i class="bi bi-box-arrow-right"></i> Salir
+            </a>
+        </div>
+    </div>
+
+    <div class="card dashboard-card text-white">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="card-title mb-0 d-flex align-items-center gap-2">
+                    <i class="bi bi-layers-half text-primary"></i> Solicitudes Pendientes
+                </h4>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID Op.</th>
+                            <th>Solicitante</th>
+                            <th>Rol</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th class="text-end">Gestión</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                        <tr>
+                            <td class="font-monospace text-muted">#{{ loan.id }}</td>
+                            <td class="fw-bold text-white">{{ loan.full_name }}</td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary text-secondary">
+                                    {{ loan.role }}
+                                </span>
+                            </td>
+                            <td class="text-success fw-bold">${{ loan.amount }}</td>
+                            <td>
+                                <span class="badge rounded-pill bg-{{ 'secondary' if loan.estado_prestamo == 'BORRADOR' 
+                                                    else 'warning text-dark' if loan.estado_prestamo == 'EN_REVISION' 
+                                                    else 'primary' if loan.estado_prestamo == 'POR_DESEMBOLSAR'
+                                                    else 'success' }}">
+                                    <i class="bi {{ 'bi-pencil' if loan.estado_prestamo == 'BORRADOR' 
+                                        else 'bi-hourglass-split' if loan.estado_prestamo == 'EN_REVISION' 
+                                        else 'bi-wallet2' if loan.estado_prestamo == 'POR_DESEMBOLSAR'
+                                        else 'bi-check-circle' }}"></i>
+                                    {{ loan.estado_prestamo }}
+                                </span>
+                            </td>
+                            <td>
+                                <form action="/admin_action" method="POST" class="d-flex justify-content-end gap-2">
+                                    <input type="hidden" name="loan_id" value="{{ loan.id }}">
+                                    
+                                    {% if loan.estado_prestamo == 'BORRADOR' %}
+                                        <a href="/admin/review/{{ loan.id }}" class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-search"></i> Revisar
+                                        </a>
+                                    
+                                    {% elif loan.estado_prestamo == 'EN_REVISION' %}
+                                        <button name="action" value="aprobar" class="btn btn-sm btn-primary" title="Aprobar">
+                                            <i class="bi bi-check-lg"></i> Aprobar
+                                        </button>
+                                        <button name="action" value="rechazar" class="btn btn-sm btn-danger" title="Rechazar">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+
+                                    {% elif loan.estado_prestamo == 'POR_DESEMBOLSAR' %}
+                                        <button name="action" value="desembolsar" class="btn btn-sm btn-success fw-bold">
+                                            <i class="bi bi-cash-stack"></i> Desembolsar
+                                        </button>
+                                    
+                                    {% elif loan.estado_prestamo == 'ACTIVO' %}
+                                        <a href="/admin/loan/{{ loan.id }}" class="btn btn-sm btn-info text-white">
+                                            <i class="bi bi-bar-chart-fill"></i> Ver Pagos
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">-</span>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
